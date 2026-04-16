@@ -186,6 +186,7 @@ body{font-family:'Space Grotesk',sans-serif;background:var(--bg);color:var(--tex
 </style>
 </head>
 <body>
+<canvas id="bg-canvas" style="position:fixed; top:0; left:0; width:100%; height:100%; z-index:1; pointer-events:none;"></canvas>
 <div class="sp" id="sp"></div>
 <div class="bg-grid"></div>
 <div class="overlay" id="overlay" onclick="closeSidebar()"></div>
@@ -841,5 +842,6 @@ window.addEventListener('load',()=>{
     return null;
   };
 </script>
+<script type="module" src="floating-bg.js"></script>
 </body>
 </html>

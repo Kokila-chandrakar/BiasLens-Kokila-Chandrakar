@@ -151,6 +151,7 @@ footer{position:relative;z-index:2;border-top:1px solid var(--border);padding:cl
 </style>
 </head>
 <body>
+<canvas id="bg-canvas" style="position:fixed; top:0; left:0; width:100%; height:100%; z-index:1; pointer-events:none;"></canvas>
 <div class="sp" id="sp"></div>
 <div class="bg-grid"></div>
 <div class="api-badge"><div class="api-dot" id="apiDot"></div><span id="apiLbl">checking...</span></div>
@@ -389,5 +390,6 @@ window.handleLogout = async function(){
   }
 }
 </script>
+<script type="module" src="floating-bg.js"></script>
 </body>
 </html>
