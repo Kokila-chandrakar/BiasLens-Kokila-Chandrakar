@@ -331,8 +331,19 @@ window.runAudit = async function(file,labelCol,sensitiveAttrs){
   fd.append('use_ai_explanation','true');
   if(labelCol)fd.append('label_column',labelCol);
   if(sensitiveAttrs)fd.append('sensitive_attributes',sensitiveAttrs);
+
+  const fetchOpts = { method: 'POST', body: fd, headers: {} };
+  if(currentUser) {
+    try {
+      const idToken = await currentUser.getIdToken();
+      fetchOpts.headers['Authorization'] = `Bearer ${idToken}`;
+    } catch(err) {
+      console.warn("Failed to get Firebase token:", err);
+    }
+  }
+
   try{
-    const res=await fetch(`${API}/api/audit`,{method:'POST',body:fd});
+    const res=await fetch(`${API}/api/audit`, fetchOpts);
     if(!res.ok){const e=await res.json().catch(()=>({detail:`HTTP ${res.status}`}));throw new Error(e.detail||`Error ${res.status}`);}
     const data=await res.json();
     STEPS.forEach(id=>document.getElementById(id).className='step-item done');
@@ -371,12 +382,12 @@ onAuthStateChanged(auth, user => {
     const email = user.email || 'User';
     const initial = email.charAt(0).toUpperCase();
     const shortName = email.split('@')[0];
-    area.innerHTML = \`<div class="nav-user" onclick="handleLogout()" title="Click to logout">
-      <div class="nav-user-avatar">\${initial}</div>
-      <span class="nav-user-name">\${shortName}</span>
-    </div>\`;
+    area.innerHTML = `<div class="nav-user" onclick="handleLogout()" title="Click to logout">
+      <div class="nav-user-avatar">${initial}</div>
+      <span class="nav-user-name">${shortName}</span>
+    </div>`;
   } else {
-    area.innerHTML = \`<button class="btn-o" id="btnAuth" onclick="goto('auth.html')">login</button>\`;
+    area.innerHTML = `<button class="btn-o" id="btnAuth" onclick="goto('auth.html')">login</button>`;
   }
 });
 
