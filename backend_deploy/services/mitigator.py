@@ -271,12 +271,15 @@ def get_relevant_strategies(issues: List[BiasIssue]) -> List[MitigationStrategy]
 # ── ACTUAL MITIGATION LOGIC ──────────────────────────────────────────────────
 
 def apply_mitigation(
-    df: pd.DataFrame, 
-    strategy_id: str, 
-    label_col: str, 
+    df: pd.DataFrame,
+    strategy_id: str,
+    label_col: str,
     sensitive_attrs: List[str],
     positive_label: Any = 1
 ) -> Tuple[pd.DataFrame, str]:
+
+    if df.empty:
+        raise ValueError("Dataset is empty")
     """
     Applies the actual data transformation for the chosen strategy.
     Returns: (Transformed DataFrame, Description of what was done)
@@ -351,4 +354,10 @@ def apply_mitigation(
         df_reweighed = pd.concat(groups).sample(frac=1, random_state=42).reset_index(drop=True)
         return df_reweighed, f"Simulated reweighing by adjusting outcome distributions across '{attr}' groups."
 
+    
+    
+    else:
+        raise ValueError(
+            f"Unsupported mitigation strategy: {strategy_id}"
+        )
     return df, "Strategy selected is a code-implementation only strategy (no automated fix applied)."

@@ -312,18 +312,42 @@ async def mitigate_bias(
 ):
     try:
         df_orig = await parse_uploaded_file(file)
+        if df_orig.empty:
+            raise HTTPException(
+                status_code=400,
+                detail="Uploaded dataset is empty"
+            )
         s_attrs = [a.strip() for a in sensitive_attributes.split(",") if a.strip()]
         validate_sensitive_attributes(df_orig, s_attrs)
         orig_audit = await _run_audit_pipeline(df_orig.copy(), file.filename, label_column, sensitive_attributes, positive_label)
 
         df_mitigated, desc = apply_mitigation(df_orig, strategy_id, label_column, s_attrs, positive_label)
+        allowed_strategies = [
+            
+            "reweighing",
+            "disparate_impact_remover",
+            "equalized_odds"
+        ]
+
+        if strategy_id not in allowed_strategies:
+            raise HTTPException(
+                status_code=400,
+                detail="Unsupported mitigation strategy"
+            )
         mitigated_audit = await _run_audit_pipeline(df_mitigated, f"mitigated_{file.filename}", label_column, sensitive_attributes, positive_label)
 
         payload = {
+            
+            "success": True,
+            "message": "Mitigation completed successfully",
             "original_audit": orig_audit.model_dump(),
             "mitigated_audit": mitigated_audit.model_dump(),
             "mitigation_applied": desc,
-            "improvement_score": mitigated_audit.summary.overall_score - orig_audit.summary.overall_score,
+            "improvement_score": (
+                
+                mitigated_audit.summary.overall_score
+                - orig_audit.summary.overall_score
+            ),
             "mitigated_filename": f"mitigated_{file.filename}",
         }
         return build_success_response(payload, validation={

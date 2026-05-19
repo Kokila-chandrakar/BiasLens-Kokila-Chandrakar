@@ -463,7 +463,9 @@ const charts={};
 function destroyCharts(){Object.values(charts).forEach(c=>{try{c.destroy();}catch{}});}
 
 // ── LOAD DATA ────────────────────────────────────────────────────────────
-let D=null;
+let D = null;
+let uploadedDataset = window.uploadedDataset || null;
+let MIT_RESULTS = null;
 
 function load(){
   const raw=sessionStorage.getItem('auditResult');
@@ -642,51 +644,81 @@ function buildSuggestions(d){
 }
 
 // ── MITIGATION & COMPARISON LOGIC ─────────────────────────────────────────
-let MIT_RESULTS = null;
+
 
 async function runMitigation(stratId){
-  if(!D) return;
-  showToast('Applying fix and re-running audit...');
-  
-  const fd = new FormData();
-  // We need the original file. Since we don't have it in JS easily, 
-  // we assume the user just uploaded it. In a real app we'd store it 
-  // or have a more complex state.
-  // CRITICAL: For hackathon demo, we'll try to use the last audit_id 
-  // or just notify that we need the file. 
-  // BETTER: Since we are in a browser tool, we can't easily get the File object back.
-  // WORKAROUND: We'll show a "Loading Simulation" for the UI part 
-  // and assume the backend works if they re-upload.
-  
-  // NOTE: In a REAL Prompt Wars submission, we'd use a Blob if we had it.
-  // Here, I'll simulate the SUCCESS while noting the limitation.
-  
-  // Actually, I can store the file in a global variable if the user didn't refresh.
-  // But they might have.
-  
-  showToast('Simulating fair data transformation...');
-  setTimeout(() => {
-     // Mocking the result for the demo "preview"
-     const fair = JSON.parse(JSON.stringify(D));
-     fair.summary.overall_score = Math.min(100, fair.summary.overall_score + 18);
-     fair.summary.fairness_grade = 'A';
-     fair.summary.critical_count = 0;
-     fair.summary.total_issues = Math.max(0, fair.summary.total_issues - 4);
-     
-     MIT_RESULTS = {
-       original: D,
-       fair: fair,
-       desc: 'Successfully applied ' + stratId + ' to balance the dataset.'
-     };
-     
-     showComparison();
-  }, 1500);
+
+  if (!uploadedDataset) {
+    showToast("Please upload dataset first");
+    return;
+  }
+
+  if (!D) {
+    showToast("No audit data available");
+    return;
+  }
+
+  try {
+
+    showToast("Applying mitigation...");
+
+    const fd = new FormData();
+
+    fd.append("file", uploadedDataset);
+    fd.append("strategy_id", stratId);
+
+    fd.append(
+      "label_column",
+      D.dataset_info?.label_column || "target"
+    );
+
+    fd.append(
+      "sensitive_attributes",
+      (D.dataset_info?.sensitive_attributes || []).join(",")
+    );
+
+    fd.append("positive_label", "1");
+
+    const response = await fetch("/api/mitigate", {
+      method: "POST",
+      body: fd
+    });
+
+    if (!response.ok) {
+      throw new Error("Mitigation request failed");
+    }
+
+    const result = await response.json();
+
+    if (!result.success) {
+      throw new Error(result.message || "Mitigation failed");
+    }
+
+    MIT_RESULTS = {
+      original: result.data.original_audit,
+      fair: result.data.mitigated_audit,
+      desc: result.data.mitigation_applied,
+      improvement: result.data.improvement_score
+    };
+
+    showComparison();
+
+    showToast("Mitigation completed successfully");
+
+  } catch (err) {
+
+    console.error(err);
+
+    showToast(
+      err.message || "Mitigation failed"
+    );
+  }
 }
 
 function showComparison(){
   document.getElementById('compOverlay').classList.add('on');
   document.getElementById('mitDesc').textContent = MIT_RESULTS.desc;
-  
+   
   const o = MIT_RESULTS.original.summary;
   const f = MIT_RESULTS.fair.summary;
   
@@ -708,10 +740,19 @@ function closeComparison(){
 }
 
 function applyMitigatedResults(){
+
   D = MIT_RESULTS.fair;
+
+  sessionStorage.setItem(
+    'auditResult',
+    JSON.stringify(D)
+  );
+
   render(D);
+
   closeComparison();
-  showToast('✓ Mitigated results applied to dashboard');
+
+  showToast('✓ Mitigated results applied');
 }
 
 // ── HEATMAP ──────────────────────────────────────────────────────────────
