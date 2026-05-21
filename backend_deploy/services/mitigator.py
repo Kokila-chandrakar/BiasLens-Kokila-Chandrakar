@@ -360,4 +360,3 @@ def apply_mitigation(
         raise ValueError(
             f"Unsupported mitigation strategy: {strategy_id}"
         )
-    return df, "Strategy selected is a code-implementation only strategy (no automated fix applied)."

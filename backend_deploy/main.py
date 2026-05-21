@@ -25,6 +25,7 @@ from firebase_admin import credentials, auth
 from services.auth import is_admin, Token, TokenData
 
 # Service & Utils Imports
+from services.mitigator import ALLOWED_STRATEGIES
 from config import settings
 from models.schemas import AuditResponse, MitigationAuditResponse, HeatmapData
 from utils.file_parser import (
@@ -322,14 +323,9 @@ async def mitigate_bias(
         orig_audit = await _run_audit_pipeline(df_orig.copy(), file.filename, label_column, sensitive_attributes, positive_label)
 
         df_mitigated, desc = apply_mitigation(df_orig, strategy_id, label_column, s_attrs, positive_label)
-        allowed_strategies = [
-            
-            "reweighing",
-            "disparate_impact_remover",
-            "equalized_odds"
-        ]
+        
 
-        if strategy_id not in allowed_strategies:
+        if strategy_id not in ALLOWED_STRATEGIES:
             raise HTTPException(
                 status_code=400,
                 detail="Unsupported mitigation strategy"
