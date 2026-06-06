@@ -277,13 +277,14 @@ def apply_mitigation(
     sensitive_attrs: List[str],
     positive_label: Any = 1
 ) -> Tuple[pd.DataFrame, str]:
-
-    if df.empty:
-        raise ValueError("Dataset is empty")
     """
     Applies the actual data transformation for the chosen strategy.
     Returns: (Transformed DataFrame, Description of what was done)
     """
+    # FIX 1: Empty check moved to top — before any logic runs
+    if df.empty:
+        raise ValueError("Dataset is empty")
+
     if strategy_id == "mit_proxy_removal":
         from .metrics import detect_proxy_variables
         proxies = detect_proxy_variables(df, sensitive_attrs, label_col, threshold=0.55)
@@ -293,7 +294,9 @@ def apply_mitigation(
         df_new = df.drop(columns=cols_to_drop)
         return df_new, f"Removed {len(cols_to_drop)} proxy variables: {', '.join(cols_to_drop)}."
 
-    if strategy_id == "mit_resampling":
+    # FIX 2: Changed all standalone `if` blocks to `elif` so the final `else`
+    # is reachable for ALL unmatched strategy_ids, not just after mit_reweighing.
+    elif strategy_id == "mit_resampling":
         # Stratified Resampling (Simplified: Oversampling minority groups)
         df_new = df.copy()
         if not sensitive_attrs:
@@ -314,7 +317,7 @@ def apply_mitigation(
         df_balanced = pd.concat(groups).sample(frac=1, random_state=42).reset_index(drop=True)
         return df_balanced, f"Applied stratified resampling to balance groups in '{attr}'."
 
-    if strategy_id == "mit_reweighing":
+    elif strategy_id == "mit_reweighing":
         # For a live audit, we implement Reweighing as a selective resampling 
         # to simulate the effect of weights on the distributions.
         # (True reweighing requires the metric functions to support weight params)
@@ -354,8 +357,6 @@ def apply_mitigation(
         df_reweighed = pd.concat(groups).sample(frac=1, random_state=42).reset_index(drop=True)
         return df_reweighed, f"Simulated reweighing by adjusting outcome distributions across '{attr}' groups."
 
-    
-    
     else:
         raise ValueError(
             f"Unsupported mitigation strategy: {strategy_id}"
