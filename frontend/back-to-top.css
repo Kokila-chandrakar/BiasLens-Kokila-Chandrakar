@@ -1,0 +1,246 @@
+/**
+ * BiasLens Back to Top Button Styling
+ * Responsive, animated button that matches the project's cyberpunk aesthetic
+ */
+
+#back-to-top-container {
+  position: fixed;
+  bottom: clamp(16px, 3vh, 32px);
+  right: clamp(16px, 3vw, 32px);
+  z-index: 100;
+  pointer-events: none;
+}
+
+.back-to-top-btn {
+  /* Button Structure */
+  pointer-events: all;
+  position: relative;
+  width: 48px;
+  height: 48px;
+  border: 1px solid var(--border2, rgba(0, 245, 255, 0.27));
+  border-radius: 12px;
+  background: rgba(8, 8, 24, 0.72);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  cursor: pointer;
+
+  /* Text & Icon */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--c1, #00f5ff);
+  font-size: 16px;
+  font-weight: 600;
+
+  /* Initial State - Hidden */
+  opacity: 0;
+  transform: translateY(20px) scale(0.8);
+  transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+
+  /* Accessibility */
+  outline: none;
+  font-family: inherit;
+
+  /* Prevent text selection on double-click */
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+/* Visible State */
+.back-to-top-btn.visible {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+}
+
+/* Hover State */
+.back-to-top-btn:hover {
+  background: rgba(0, 245, 255, 0.08);
+  border-color: var(--c1, #00f5ff);
+  box-shadow:
+    0 0 20px rgba(0, 245, 255, 0.2),
+    inset 0 0 20px rgba(0, 245, 255, 0.05);
+  transform: translateY(-4px) scale(1.05);
+}
+
+/* Active State */
+.back-to-top-btn:active {
+  transform: translateY(-2px) scale(0.98);
+  background: rgba(0, 245, 255, 0.12);
+}
+
+/* Focus State (for accessibility) */
+.back-to-top-btn:focus-visible {
+  outline: 2px solid var(--c1, #00f5ff);
+  outline-offset: 2px;
+}
+
+/* Icon Animation */
+.back-to-top-btn svg {
+  stroke-width: 2.5;
+  transition: transform 0.2s ease;
+}
+
+.back-to-top-btn:hover svg {
+  animation: bounce-up 0.6s ease infinite;
+}
+
+/* Bouncing Animation for Icon */
+@keyframes bounce-up {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-3px);
+  }
+}
+
+/* Glow Effect (Optional - subtle animation) */
+@keyframes glow-pulse {
+  0%,
+  100% {
+    box-shadow:
+      0 0 20px rgba(0, 245, 255, 0.2),
+      inset 0 0 20px rgba(0, 245, 255, 0.05);
+  }
+  50% {
+    box-shadow:
+      0 0 30px rgba(0, 245, 255, 0.3),
+      inset 0 0 25px rgba(0, 245, 255, 0.1);
+  }
+}
+
+.back-to-top-btn:hover {
+  animation: glow-pulse 1.5s ease-in-out infinite;
+}
+
+/* Responsive Design */
+
+/* Tablets (640px - 1024px) */
+@media (max-width: 1024px) {
+  #back-to-top-container {
+    bottom: clamp(12px, 2.5vh, 24px);
+    right: clamp(12px, 2.5vw, 24px);
+  }
+
+  .back-to-top-btn {
+    width: 44px;
+    height: 44px;
+  }
+
+  .back-to-top-btn svg {
+    width: 18px;
+    height: 18px;
+  }
+}
+
+/* Small Phones (< 640px) */
+@media (max-width: 640px) {
+  #back-to-top-container {
+    bottom: clamp(10px, 2vh, 20px);
+    right: clamp(10px, 2vw, 20px);
+  }
+
+  .back-to-top-btn {
+    width: 42px;
+    height: 42px;
+    border-radius: 10px;
+  }
+
+  .back-to-top-btn svg {
+    width: 16px;
+    height: 16px;
+  }
+
+  /* Slightly larger touch target on mobile */
+  .back-to-top-btn {
+    padding: 8px;
+  }
+}
+
+/* Extra Small Phones (< 375px) */
+@media (max-width: 375px) {
+  .back-to-top-btn {
+    width: 40px;
+    height: 40px;
+    border-radius: 8px;
+  }
+
+  .back-to-top-btn svg {
+    width: 14px;
+    height: 14px;
+  }
+}
+
+/* Landscape Mode Optimization */
+@media (max-height: 500px) and (orientation: landscape) {
+  #back-to-top-container {
+    bottom: 10px;
+    right: 10px;
+  }
+
+  .back-to-top-btn {
+    width: 40px;
+    height: 40px;
+  }
+}
+
+/* High DPI Screens */
+@media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
+  .back-to-top-btn {
+    border-width: 1px;
+  }
+}
+
+/* Reduced Motion - Respect user preferences */
+@media (prefers-reduced-motion: reduce) {
+  .back-to-top-btn,
+  .back-to-top-btn svg {
+    transition: none;
+    animation: none;
+  }
+
+  .back-to-top-btn.visible {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+
+  .back-to-top-btn:hover {
+    background: rgba(0, 245, 255, 0.08);
+    border-color: var(--c1, #00f5ff);
+    box-shadow:
+      0 0 20px rgba(0, 245, 255, 0.2),
+      inset 0 0 20px rgba(0, 245, 255, 0.05);
+  }
+}
+
+/* Dark Mode Support (already dark theme, but future-proof) */
+@media (prefers-color-scheme: dark) {
+  .back-to-top-btn {
+    background: rgba(8, 8, 24, 0.72);
+    color: var(--c1, #00f5ff);
+  }
+}
+
+/* Light Mode Support (if ever added) */
+@media (prefers-color-scheme: light) {
+  .back-to-top-btn {
+    background: rgba(240, 244, 255, 0.9);
+    border-color: var(--c1, #00f5ff);
+    color: var(--c1, #00f5ff);
+  }
+
+  .back-to-top-btn:hover {
+    background: rgba(0, 245, 255, 0.15);
+    box-shadow:
+      0 0 20px rgba(0, 245, 255, 0.3),
+      inset 0 0 20px rgba(0, 245, 255, 0.1);
+  }
+}
+
+/* Print Media - Hide button when printing */
+@media print {
+  #back-to-top-container {
+    display: none;
+  }
+}
