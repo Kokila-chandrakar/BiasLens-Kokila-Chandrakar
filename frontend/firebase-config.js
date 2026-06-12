@@ -10,8 +10,6 @@ import {
   onAuthStateChanged,
   signOut
 } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
-import { getFirestore, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
-import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-storage.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyDD6gjNf9HMgTaie2Lv2xwouaq8AZDDjew",
@@ -26,21 +24,32 @@ const firebaseConfig = {
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
 
-// Initialize Firebase services
+// Initialize Firebase Auth
 const auth = getAuth(app);
-const db = getFirestore(app);
-const storage = getStorage(app);
 
 // Authentication Providers
 const googleProvider = new GoogleAuthProvider();
 const twitterProvider = new TwitterAuthProvider();
 const githubProvider = new GithubAuthProvider();
 
+// Lazy load Firestore to avoid massive un-tree-shakable bundle sizes on the landing page
+let dbInstance = null;
+const getDb = async () => {
+  if (dbInstance) return dbInstance;
+  const { getFirestore } = await import("https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js");
+  dbInstance = getFirestore(app);
+  return dbInstance;
+};
+
+const getFirestoreDeps = async () => {
+  return await import("https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js");
+};
+
 export { 
   app, 
   auth, 
-  db, 
-  storage,
+  getDb,
+  getFirestoreDeps,
   googleProvider,
   twitterProvider,
   githubProvider,
@@ -48,11 +57,5 @@ export {
   createUserWithEmailAndPassword,
   signInWithEmailAndPassword,
   onAuthStateChanged,
-  signOut,
-  doc,
-  setDoc,
-  getDoc,
-  ref,
-  uploadBytes,
-  getDownloadURL
+  signOut
 };
