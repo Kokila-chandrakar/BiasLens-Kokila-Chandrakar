@@ -183,9 +183,9 @@ input::placeholder{color:var(--dim);}
 <!-- NO THREE.js loaded = faster page load -->
 <script type="module">
   import { 
-    auth, db, googleProvider, twitterProvider, githubProvider,
+    auth, getDb, getFirestoreDeps, googleProvider, twitterProvider, githubProvider,
     signInWithPopup, createUserWithEmailAndPassword, signInWithEmailAndPassword,
-    doc, setDoc, onAuthStateChanged
+    onAuthStateChanged
   } from './firebase-config.js';
 
   let mode = 'login';
@@ -227,6 +227,8 @@ input::placeholder{color:var(--dim);}
       
       // Create or update user profile in Firestore
       try {
+        const db = await getDb();
+        const { doc, setDoc } = await getFirestoreDeps();
         await setDoc(doc(db, 'users', user.uid), {
           email: user.email,
           displayName: user.displayName,
@@ -290,6 +292,8 @@ input::placeholder{color:var(--dim);}
         const cred = await createUserWithEmailAndPassword(auth, email, password);
         const user = cred.user;
         
+        const db = await getDb();
+        const { doc, setDoc } = await getFirestoreDeps();
         await setDoc(doc(db, 'users', user.uid), {
           email: user.email,
           createdAt: new Date(),

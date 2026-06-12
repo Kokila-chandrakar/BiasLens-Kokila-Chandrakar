@@ -6,6 +6,8 @@
 <meta name="theme-color" content="#020208"/>
 <title>BiasLens — Audit Dashboard</title>
 <link rel="icon" type="image/x-icon" href="pic.ico" />
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Orbitron:wght@700;900&family=JetBrains+Mono:wght@300;400;500&display=swap" rel="stylesheet"/>
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
@@ -183,7 +185,11 @@ body{font-family:'Space Grotesk',sans-serif;background:var(--bg);color:var(--tex
   .topbar{padding-left:52px;}
 }
 @media(prefers-reduced-motion:reduce){*{animation-duration:0.01ms!important;transition-duration:0.01ms!important;}}
-</style>
+    #p-overview {
+      min-height: 400px;
+      contain: size layout;
+    }
+  </style>
 </head>
 <body>
 <canvas id="bg-canvas" style="position:fixed; top:0; left:0; width:100%; height:100%; z-index:1; pointer-events:none;"></canvas>
@@ -374,7 +380,7 @@ body{font-family:'Space Grotesk',sans-serif;background:var(--bg);color:var(--tex
 
 <div class="toast" id="toast"></div>
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js" defer></script>
 <script>
 window.addEventListener('scroll',()=>{document.getElementById('sp').style.width=Math.min(scrollY/(document.body.scrollHeight-innerHeight)*100,100)+'%';},{passive:true});
 
@@ -805,7 +811,7 @@ window.addEventListener('load',()=>{
 </script>
 
 <script type="module">
-  import { auth, onAuthStateChanged, signOut, doc, getDoc, db } from './firebase-config.js';
+  import { auth, onAuthStateChanged, signOut, getDb, getFirestoreDeps } from './firebase-config.js';
   
   window.USER = null;
   
@@ -818,6 +824,8 @@ window.addEventListener('load',()=>{
       };
       // Try to fetch role from user document
       try {
+        const db = await getDb();
+        const { doc, getDoc } = await getFirestoreDeps();
         const snap = await getDoc(doc(db, 'users', user.uid));
         if (snap.exists() && snap.data().role) {
           window.USER.role = snap.data().role;
@@ -842,6 +850,6 @@ window.addEventListener('load',()=>{
     return null;
   };
 </script>
-<script type="module" src="floating-bg.js"></script>
+<script type="module" src="floating-bg.js" defer></script>
 </body>
 </html>
