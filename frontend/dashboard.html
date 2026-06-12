@@ -404,12 +404,6 @@ function switchTab(name,btn){
 }
 
 // ── Chart defaults ────────────────────────────────────────────────────────
-Chart.defaults.color='rgba(240,244,255,0.38)';
-Chart.defaults.borderColor='rgba(0,245,255,0.11)';
-Chart.defaults.font.family="'JetBrains Mono',monospace";
-Chart.defaults.font.size=10;
-Chart.defaults.plugins.legend.display=false;
-
 const charts={};
 function destroyCharts(){Object.values(charts).forEach(c=>{try{c.destroy();}catch{}});}
 
@@ -727,7 +721,7 @@ function buildDataset(d){
 
 function esc(s){return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
 
-const API = 'https://biaslens-qvew.onrender.com';
+const API = (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' || window.location.protocol === 'file:') ? 'http://localhost:8000' : 'https://biaslens-qvew.onrender.com';
 
 function renderUser(){
   const sec = document.getElementById('userSec');
@@ -799,6 +793,12 @@ function exportJSON(){
 }
 
 window.addEventListener('load',()=>{ 
+  Chart.defaults.color='rgba(240,244,255,0.38)';
+  Chart.defaults.borderColor='rgba(0,245,255,0.11)';
+  Chart.defaults.font.family="'JetBrains Mono',monospace";
+  Chart.defaults.font.size=10;
+  Chart.defaults.plugins.legend.display=false;
+
   const saved=sessionStorage.getItem('auditResult'); 
   if(saved){
     D=JSON.parse(saved);

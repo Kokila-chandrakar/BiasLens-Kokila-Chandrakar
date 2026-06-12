@@ -1416,7 +1416,7 @@
   <script type="module">
     import { auth, onAuthStateChanged, signOut } from './firebase-config.js';
 
-    const API = 'https://biaslens-qvew.onrender.com';
+    const API = (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' || window.location.protocol === 'file:') ? 'http://localhost:8000' : 'https://biaslens-qvew.onrender.com';
     let currentUser = null;
     window.addEventListener('scroll', () => { document.getElementById('sp').style.width = Math.min(scrollY / (document.body.scrollHeight - innerHeight) * 100, 100) + '%'; }, { passive: true });
     const ro = new IntersectionObserver(es => { es.forEach(e => { if (e.isIntersecting) e.target.classList.add('in'); }); }, { threshold: .07 });
@@ -1425,7 +1425,7 @@
     async function checkApi() {
       const dot = document.getElementById('apiDot'), lbl = document.getElementById('apiLbl');
       try {
-        const r = await fetch(`${API}/health`, { signal: AbortSignal.timeout(4000) });
+        const r = await fetch(`${API}/health`, { signal: AbortSignal.timeout(60000) });
         if (r.ok) { const d = await r.json(); dot.className = 'api-dot on'; lbl.textContent = d.nvidia_configured ? 'api · nvidia nim' : 'api online'; } else throw 0;
       } catch (e) {
         console.error('Fetch failed or API Offline', e);
